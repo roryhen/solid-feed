@@ -36,7 +36,13 @@ export const saveFeed = action(async (formData: FormData) => {
 
   // parse feed
   try {
-    result = await extract(url);
+    result = await extract(url, {
+      getExtraFeedFields: (feedData) => {
+        return {
+          image: feedData?.image?.url || "",
+        };
+      },
+    });
   } catch (error) {
     console.error(error);
     return {

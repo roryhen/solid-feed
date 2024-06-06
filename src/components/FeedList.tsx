@@ -1,13 +1,7 @@
 import { createAsyncStore } from "@solidjs/router";
 import { Component, For, Show } from "solid-js";
 import { getFeeds } from "~/lib/api";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardHeader, CardTitle } from "./ui/card";
 import { slugify } from "~/lib/utils";
 import { Flex } from "./ui/flex";
 
@@ -33,10 +27,9 @@ export const FeedList: Component = () => {
                         height={16}
                       />
                       <CardTitle>{source.feed.title}</CardTitle>
-                      <CardDescription></CardDescription>
+                      <div></div>
                     </Flex>
                   </CardHeader>
-                  <CardContent></CardContent>
                 </Card>
               </a>
             </li>

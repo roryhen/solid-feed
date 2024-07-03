@@ -1,7 +1,9 @@
-import { action, cache, redirect } from "@solidjs/router";
+import { action, cache } from "@solidjs/router";
+import type { FeedData } from "@extractus/feed-extractor";
+import { extract } from "@extractus/feed-extractor";
 import { storage } from "./db";
-import { FeedData, extract } from "@extractus/feed-extractor";
 import { slugify } from "./utils";
+import { extractFeed } from "./feed";
 
 type FeedSource = {
   id: string;
@@ -32,32 +34,14 @@ export const getUnread = cache(async () => {
 export const saveFeed = action(async (formData: FormData) => {
   "use server";
   const url = String(formData.get("url"));
-  let result: FeedData;
 
   // parse feed
-  try {
-    result = await extract(url, {
-      getExtraFeedFields: (feedData) => {
-        return {
-          image: feedData?.image?.url || "",
-        };
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    return {
-      message: "Failed to extract feed",
-      error: error,
-    };
-  }
 
-  // save unread
-  // for (const entry of result.entries?.slice(0, 3) || []) {
-  //   await saveUnread({
-  //     id: entry.id,
-  //     published: entry.published ? new Date(entry.published) : new Date(),
-  //   });
-  // }
+  const result = await extractFeed(url);
+
+  if ("message" in result) {
+    return result;
+  }
 
   // check if feed exists
   const feeds = await getFeeds();

@@ -1,16 +1,35 @@
+import type { FeedData, FeedEntry } from "@extractus/feed-extractor";
 import { makePersisted } from "@solid-primitives/storage";
-import { Component, JSX, createContext, useContext } from "solid-js";
+import { JSX, createContext, onMount, useContext } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
-import type { FeedData } from "@extractus/feed-extractor";
 
-const FeedContext = createContext<[FeedData[], SetStoreFunction<FeedData[]>]>([
-  [],
-  () => [],
-]);
+export type FeedEntryEnhanced = FeedEntry & {
+  source?: string;
+  unread: boolean;
+  tags: string[];
+};
 
-export const FeedProvider: Component<{ children: JSX.Element }> = (props) => {
-  const [feedStore, setFeedStore] = makePersisted(createStore<FeedData[]>([]), {
-    name: "feed-sources",
+export type FeedDataEnhanced = FeedData & {
+  fetchURL: string;
+  entries: FeedEntryEnhanced[];
+};
+
+let FeedContext = createContext<
+  [FeedDataEnhanced[], SetStoreFunction<FeedDataEnhanced[]>]
+>([[], () => []]);
+
+export default function FeedProvider(props: { children: JSX.Element }) {
+  let [feedStore, setFeedStore] = makePersisted(
+    createStore<FeedDataEnhanced[]>([]),
+    {
+      name: "feed-sources",
+    },
+  );
+
+  onMount(() => {
+    if (feedStore.length > 0) {
+      // TODO: check for new entries
+    }
   });
 
   return (
@@ -18,8 +37,8 @@ export const FeedProvider: Component<{ children: JSX.Element }> = (props) => {
       {props.children}
     </FeedContext.Provider>
   );
-};
+}
 
-export const useFeedContext = () => {
+export function useFeedStore() {
   return useContext(FeedContext);
-};
+}

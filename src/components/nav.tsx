@@ -1,19 +1,24 @@
+import { A } from "@solidjs/router";
 import { Component, For, Show } from "solid-js";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-interface NavProps {
+type NavProps = {
   isCollapsed: boolean;
   links: {
     title: string;
     label?: string;
     icon: Component;
     variant: "default" | "ghost";
+    filter?: {
+      name: string;
+      value: string;
+    };
   }[];
-}
+};
 
-export function Nav(props: NavProps) {
+export default function Nav(props: NavProps) {
   return (
     <div
       data-collapsed={props.isCollapsed}
@@ -23,12 +28,15 @@ export function Nav(props: NavProps) {
         <For each={props.links}>
           {(item) => {
             const Icon = item.icon;
+            const url = item.filter
+              ? `?${item.filter.name}=${item.filter.value}`
+              : "";
             return (
               <Show
                 when={props.isCollapsed}
                 fallback={
-                  <a
-                    href="#"
+                  <A
+                    href={url}
                     class={cn(
                       buttonVariants({
                         variant: item.variant,
@@ -55,13 +63,13 @@ export function Nav(props: NavProps) {
                         {item.label}
                       </span>
                     )}
-                  </a>
+                  </A>
                 }
               >
                 <Tooltip openDelay={0} closeDelay={0} placement="right">
                   <TooltipTrigger
-                    as="a"
-                    href="#"
+                    as={A}
+                    href={url}
                     class={cn(
                       buttonVariants({ variant: item.variant, size: "icon" }),
                       "size-9",

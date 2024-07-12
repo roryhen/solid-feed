@@ -1,17 +1,16 @@
-import { Component, Show, mergeProps } from "solid-js";
+import { JSX, Show, mergeProps } from "solid-js";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "./ui/button";
 import { IconSearch } from "./ui/icons";
 import { TextField, TextFieldInput } from "./ui/text-field";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { JSX } from "solid-js";
 
-export const SearchField: Component<{
+export default function SearchField(props: {
   label?: string;
   class?: string;
   isCollapsed?: boolean;
   onSubmit?: JSX.EventHandlerUnion<HTMLFormElement, SubmitEvent>;
-}> = (props) => {
+}) {
   props = mergeProps(
     { label: "Search", class: "p-4", isCollapsed: false },
     props,
@@ -28,7 +27,7 @@ export const SearchField: Component<{
               class="ps-9"
               placeholder={props.label}
               type="text"
-              name="url"
+              name="q"
             />
             <button class="sr-only">Submit</button>
           </TextField>
@@ -52,7 +51,7 @@ export const SearchField: Component<{
                 class="ps-9"
                 placeholder={props.label}
                 type="text"
-                name="url"
+                name="q"
               />
             </TextField>
           </TooltipContent>
@@ -60,4 +59,4 @@ export const SearchField: Component<{
       </Show>
     </form>
   );
-};
+}

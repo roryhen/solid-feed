@@ -1,64 +1,31 @@
-import { Component, JSX, Show, Suspense } from "solid-js";
-import { Nav } from "~/components/nav";
-import { IconInbox, IconStar, IconUser } from "~/components/ui/icons";
-import { SearchField } from "./search-field";
+import { Show, createMemo } from "solid-js";
+import Nav from "~/components/nav";
+import { IconInbox, IconRSS, IconStar } from "~/components/ui/icons";
+import { getDomainName } from "~/lib/utils";
+import AddFeed from "./add-feed";
+import { useFeedStore } from "./feed-provider";
 import { Separator } from "./ui/separator";
-import { useFeedContext } from "./feed-provider";
-import { extractFeed } from "~/lib/feed";
-import { showToast } from "./ui/toast";
+import { FAVORITE, FEED, TAG } from "~/lib/constants";
 
-export const Sidebar: Component<{ isCollapsed: boolean }> = (props) => {
-  const [feeds, setFeeds] = useFeedContext();
-  const links = () => {
-    return feeds.map((feed) => {
-      return {
-        title: feed.title ?? "",
-        label: "",
-        icon: IconUser,
-        variant: "ghost" as const,
-      };
-    });
-  };
+export default function Sidebar(props: { isCollapsed: boolean }) {
+  let [feeds] = useFeedStore();
 
-  const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (e) => {
-    e.preventDefault();
-    const toast = {
-      title: "ERROR!",
-      description: "Something went wrong",
-    };
-
-    if (!e.target) {
-      showToast(toast);
-      return;
-    }
-
-    const url = new FormData(e.target as HTMLFormElement)
-      .get("url")
-      ?.toString();
-
-    if (!url) {
-      showToast(toast);
-      return;
-    }
-
-    extractFeed(url).then((parsed) => {
-      if ("message" in parsed) {
-        showToast({ ...toast, description: parsed.message });
-        return;
-      }
-
-      setFeeds((feeds) => [...feeds, parsed]);
-    });
-  };
+  let links = createMemo(() => {
+    return feeds.map((feed) => ({
+      title: feed.title ?? "",
+      label: "",
+      icon: IconRSS,
+      variant: "ghost" as const,
+      filter: {
+        name: FEED,
+        value: getDomainName(feed.link ?? "") ?? "",
+      },
+    }));
+  });
 
   return (
     <>
-      <SearchField
-        class="p-2"
-        label="Enter feed url"
-        isCollapsed={props.isCollapsed}
-        onSubmit={handleSubmit}
-      />
+      <AddFeed isCollapsed={props.isCollapsed} />
       <Separator />
       <Nav
         isCollapsed={props.isCollapsed}
@@ -74,13 +41,14 @@ export const Sidebar: Component<{ isCollapsed: boolean }> = (props) => {
             label: "",
             icon: IconStar,
             variant: "ghost",
+            filter: { name: TAG, value: FAVORITE },
           },
         ]}
       />
       <Separator />
-      <Show when={links().length}>
+      <Show when={!!links().length}>
         <Nav isCollapsed={props.isCollapsed} links={links()} />
       </Show>
     </>
   );
-};
+}

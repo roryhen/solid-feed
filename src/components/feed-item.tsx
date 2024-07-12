@@ -1,4 +1,6 @@
-import { Component } from "solid-js";
+import { FAVORITE } from "~/lib/constants";
+import { FeedEntryEnhanced, useFeedStore } from "./feed-provider";
+import { Button } from "./ui/button";
 import {
   Card,
   CardContent,
@@ -6,40 +8,83 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { FeedEntry } from "@extractus/feed-extractor";
 import { Flex } from "./ui/flex";
-import { IconExternalLink } from "./ui/icons";
+import { IconExternalLink, IconStar } from "./ui/icons";
+import { Separator } from "./ui/separator";
 
-export const FeedItem: Component<{
-  entry: FeedEntry & {
-    source?: string;
-  };
-}> = (props) => {
-  const pubDate = Intl.DateTimeFormat("en-US").format(
-    new Date(props.entry.published ?? ""),
+export default function FeedItem(props: { entry?: FeedEntryEnhanced }) {
+  let [feeds, setFeeds] = useFeedStore();
+  let pubDate = Intl.DateTimeFormat("en-US").format(
+    new Date(props.entry?.published ?? ""),
   );
+
+  let isFavorite = () => props.entry?.tags.includes(FAVORITE);
+
+  let toggleFavorite = () => {
+    setFeeds(
+      { from: 0, to: feeds?.length - 1 || 0 },
+      "entries",
+      (entry: FeedEntryEnhanced) => entry.id === props.entry?.id,
+      "tags",
+      (tags) =>
+        isFavorite()
+          ? tags.filter((tag) => tag !== FAVORITE)
+          : [...tags, FAVORITE],
+    );
+  };
+
+  let toggleUnread = () => {
+    setFeeds(
+      { from: 0, to: feeds?.length - 1 || 0 },
+      "entries",
+      (entry: FeedEntryEnhanced) => entry.id === props.entry?.id,
+      "unread",
+      (unread) => !unread,
+    );
+  };
+
   return (
-    <Card>
+    <Card class="relative">
+      <Separator
+        class="absolute left-0 rounded-full data-[unread=true]:border-8 data-[unread=true]:border-amber-300 [clip-path:inset(0_80%_0_0)]"
+        data-unread={props.entry?.unread}
+        orientation="vertical"
+      />
       <CardHeader class="p-4">
-        <Flex>
+        <Flex class="gap-2">
+          <button type="button" onClick={toggleFavorite}>
+            <IconStar
+              class={`${isFavorite() ? "fill-amber-300 " : ""}stroke-amber-300`}
+            />
+          </button>
           <CardTitle class="text-md leading-none">
-            <a class="flex gap-2" href={props.entry.link}>
-              {props.entry.title}
+            <a class="flex gap-2" href={props.entry?.link}>
+              {props.entry?.title}
               <IconExternalLink class="text-muted-foreground" />
             </a>
           </CardTitle>
           <time
-            class="text-sm font-semibold text-muted-foreground"
+            class="ms-auto text-sm font-semibold text-muted-foreground"
             datetime={pubDate}
           >
             {pubDate}
           </time>
         </Flex>
-        <CardDescription>{props.entry.source}</CardDescription>
+        <CardDescription>{props.entry?.source}</CardDescription>
       </CardHeader>
-      <CardContent class="p-4 pt-0 text-xs">
-        {props.entry.description}
-      </CardContent>
+      <Flex class="p-4 pt-0 gap-8">
+        <CardContent class="p-0 text-xs">
+          {props.entry?.description}
+        </CardContent>
+        <Button
+          class="shrink-0 text-xs"
+          size="sm"
+          variant="secondary"
+          onClick={toggleUnread}
+        >
+          Mark {props.entry?.unread ? "read" : "unread"}
+        </Button>
+      </Flex>
     </Card>
   );
-};
+}

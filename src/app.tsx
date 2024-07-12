@@ -4,8 +4,7 @@ import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense, createSignal } from "solid-js";
 import "./app.css";
-import { FeedProvider } from "./components/feed-provider";
-import { Sidebar } from "./components/sidebar";
+import Sidebar from "./components/sidebar";
 import {
   Resizable,
   ResizableHandle,
@@ -13,9 +12,15 @@ import {
 } from "./components/ui/resizable";
 import { Toaster } from "./components/ui/toast";
 import { cn } from "./lib/utils";
+import { clientOnly } from "@solidjs/start";
+import AppFallback from "./components/app-fallback";
+
+const FeedProvider = clientOnly(() =>
+  import("./components/feed-provider").then((m) => m),
+);
 
 export default function App() {
-  const [sizes, setSizes] = makePersisted(createSignal<number[]>([]), {
+  let [sizes, setSizes] = makePersisted(createSignal<number[]>([0.2, 0.8]), {
     name: "resizable-sizes",
     storage: cookieStorage,
     storageOptions: {
@@ -23,7 +28,7 @@ export default function App() {
     },
   });
 
-  const [isCollapsed, setIsCollapsed] = createSignal(false);
+  let [isCollapsed, setIsCollapsed] = createSignal(false);
 
   return (
     <Router
@@ -35,7 +40,7 @@ export default function App() {
             onSizesChange={setSizes}
           >
             <ResizablePanel
-              initialSize={sizes()[0] ?? 0.2}
+              initialSize={sizes()[0]}
               minSize={0.1}
               maxSize={0.2}
               collapsible
@@ -53,8 +58,8 @@ export default function App() {
               <Sidebar isCollapsed={isCollapsed()} />
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel initialSize={sizes()[1] ?? 0.8} minSize={0.3}>
-              <Suspense>{props.children}</Suspense>
+            <ResizablePanel initialSize={sizes()[1]} minSize={0.3}>
+              <Suspense fallback={<AppFallback />}>{props.children}</Suspense>
             </ResizablePanel>
           </Resizable>
           <Toaster />

@@ -1,18 +1,19 @@
-import { Component, For, Show, createMemo } from "solid-js";
-import { FeedItem } from "./feed-item";
-import { useFeedContext } from "./feed-provider";
+import { useSearchParams } from "@solidjs/router";
+import { ErrorBoundary, For, Show, createMemo } from "solid-js";
+import { filterEntries, filterFeeds } from "~/lib/feed";
+import FeedItem from "./feed-item";
+import { FeedEntryEnhanced, useFeedStore } from "./feed-provider";
 import { Flex } from "./ui/flex";
+import ErrorPanel from "./error-panel";
 
-export const FeedList: Component<{ filter: "all" | "unread" }> = () => {
-  const [feeds] = useFeedContext();
-  const entries = createMemo(() => {
+export default function FeedList(props: { filter: "all" | "unread" }) {
+  let [searchParams] = useSearchParams();
+  let [feeds] = useFeedStore();
+  let entries = createMemo(() => {
     return feeds
-      ?.flatMap((feed) => {
-        return (feed.entries ?? []).map((entry) => ({
-          ...entry,
-          source: feed.title,
-        }));
-      })
+      .filter((feed) => filterFeeds(feed, searchParams))
+      .flatMap((feed) => feed.entries)
+      .filter((entry) => filterEntries(entry, searchParams))
       .sort(
         (a, b) =>
           new Date(b?.published ?? 0).getTime() -
@@ -20,14 +21,24 @@ export const FeedList: Component<{ filter: "all" | "unread" }> = () => {
       );
   });
 
+  let filterUnread = (entry?: FeedEntryEnhanced) => {
+    return props.filter === "unread" ? entry?.unread : true;
+  };
+
   return (
     <Flex class="gap-3 p-4 pt-0" alignItems="stretch" flexDirection="col">
-      <Show
-        when={entries().length}
-        fallback={<p>Nothing to read, add another feed perhaps?</p>}
+      <ErrorBoundary
+        fallback={(error) => <ErrorPanel message={error.message} />}
       >
-        <For each={entries()}>{(entry) => <FeedItem entry={entry} />}</For>
-      </Show>
+        <Show
+          when={!!entries().length}
+          fallback={<p>Nothing to read, add another feed perhaps?</p>}
+        >
+          <For each={entries().filter(filterUnread)}>
+            {(entry) => <FeedItem entry={entry} />}
+          </For>
+        </Show>
+      </ErrorBoundary>
     </Flex>
   );
-};
+}

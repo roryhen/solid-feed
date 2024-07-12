@@ -460,6 +460,14 @@ export function IconRocket(props: IconProps) {
   );
 }
 
+export function IconRSS(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 19a1 1 0 1 0 2 0a1 1 0 1 0-2 0M4 4a16 16 0 0 1 16 16M4 11a9 9 0 0 1 9 9" />
+    </Icon>
+  );
+}
+
 export function IconSearch(props: IconProps) {
   return (
     <Icon {...props}>

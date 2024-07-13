@@ -1,20 +1,31 @@
 import { FeedData, extract } from "@extractus/feed-extractor";
+import { Params } from "@solidjs/router";
 import { withHttps } from "ufo";
 import type {
   FeedDataEnhanced,
   FeedEntryEnhanced,
 } from "~/components/feed-provider";
-import { getDomainName } from "./utils";
-import { Params } from "@solidjs/router";
+import { slugify } from "./utils";
 
 export async function extractFeed(url: string) {
   "use server";
 
   let normalizedURL = withHttps(url);
-  let result: FeedData;
+  let result: FeedData | undefined;
 
   try {
-    result = await extract(normalizedURL);
+    result = await extract(normalizedURL, {
+      getExtraFeedFields: (feedData) => {
+        return {};
+      },
+      getExtraEntryFields: (entry) => {
+        return {};
+      },
+    });
+
+    if (!result || !result.entries?.length) {
+      throw new Error("No feed found");
+    }
   } catch (error) {
     return {
       message: "Failed to extract feed",
@@ -27,7 +38,7 @@ export async function extractFeed(url: string) {
   return withUnread;
 }
 
-function addExtraFields(fetchURL: string, feedData: FeedData) {
+function addExtraFields(xml: string, feedData: FeedData) {
   let newEntries = (feedData?.entries ?? []).map((entry, i) => {
     return {
       ...entry,
@@ -39,7 +50,7 @@ function addExtraFields(fetchURL: string, feedData: FeedData) {
 
   return {
     ...feedData,
-    fetchURL,
+    xml,
     entries: newEntries,
   };
 }
@@ -49,7 +60,7 @@ export function hasExistingFeed(feedStore: FeedData[], feedData: FeedData) {
 }
 
 export function filterFeeds(feed: FeedDataEnhanced, params: Partial<Params>) {
-  return !params.feed || getDomainName(feed.link ?? "") === params.feed;
+  return !params.feed || slugify(feed.title ?? "") === params.feed;
 }
 
 export function filterEntries(

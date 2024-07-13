@@ -1,14 +1,17 @@
 import { useSearchParams } from "@solidjs/router";
-import { Suspense } from "solid-js";
+import { createMemo, mergeProps, Suspense } from "solid-js";
 import FeedList from "~/components/feed-list";
 import SearchField from "~/components/search-field";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { useFeedStore } from "./feed-provider";
+import { slugify } from "~/lib/utils";
 
-export function TopBar() {
+export function TopBar(props: { name?: string }) {
+  props = mergeProps({ name: "Feed" }, props);
   return (
     <div class="flex items-center px-4 py-2">
-      <h1 class="text-xl font-bold">Feed</h1>
+      <h1 class="text-xl font-bold">{props.name}</h1>
       <TabsList class="ml-auto">
         <TabsTrigger value="unread" class="text-zinc-600 dark:text-zinc-200">
           Unread
@@ -22,7 +25,8 @@ export function TopBar() {
 }
 
 export default function FeedMain() {
-  let [, setSearchParams] = useSearchParams();
+  let [searchParams, setSearchParams] = useSearchParams();
+  let [feeds] = useFeedStore();
 
   let handleSearch = (e: SubmitEvent) => {
     let term =
@@ -30,9 +34,14 @@ export default function FeedMain() {
     setSearchParams({ q: term });
   };
 
+  let title = createMemo(() => {
+    return feeds.find((feed) => slugify(feed.title ?? "") === searchParams.feed)
+      ?.title;
+  });
+
   return (
     <Tabs class="max-h-screen flex flex-col" defaultValue="unread">
-      <TopBar />
+      <TopBar name={title()} />
       <Separator />
       <SearchField onSubmit={handleSearch} />
       <Suspense fallback={<p>Loading...</p>}>

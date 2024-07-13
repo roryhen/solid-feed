@@ -1,11 +1,11 @@
 import { Show, createMemo } from "solid-js";
 import Nav from "~/components/nav";
 import { IconInbox, IconRSS, IconStar } from "~/components/ui/icons";
-import { getDomainName } from "~/lib/utils";
+import { FAVORITE, FEED, TAG } from "~/lib/constants";
+import { slugify } from "~/lib/utils";
 import AddFeed from "./add-feed";
 import { useFeedStore } from "./feed-provider";
 import { Separator } from "./ui/separator";
-import { FAVORITE, FEED, TAG } from "~/lib/constants";
 
 export default function Sidebar(props: { isCollapsed: boolean }) {
   let [feeds] = useFeedStore();
@@ -18,7 +18,7 @@ export default function Sidebar(props: { isCollapsed: boolean }) {
       variant: "ghost" as const,
       filter: {
         name: FEED,
-        value: getDomainName(feed.link ?? "") ?? "",
+        value: slugify(feed.title ?? ""),
       },
     }));
   });

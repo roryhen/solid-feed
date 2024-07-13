@@ -44,21 +44,23 @@ export default function FeedItem(props: { entry?: FeedEntryEnhanced }) {
   };
 
   return (
-    <Card class="relative">
+    <Card
+      class="relative group data-[unread=false]:opacity-50"
+      data-unread={props.entry?.unread}
+    >
       <Separator
-        class="absolute left-0 rounded-full data-[unread=true]:border-8 data-[unread=true]:border-amber-300 [clip-path:inset(0_80%_0_0)]"
-        data-unread={props.entry?.unread}
+        class="absolute left-0 rounded-full group-data-[unread=true]:border-8 group-data-[unread=true]:border-amber-300 [clip-path:inset(0_80%_0_0)]"
         orientation="vertical"
       />
       <CardHeader class="p-4">
-        <Flex class="gap-2">
+        <Flex class="gap-2" alignItems="start">
           <button type="button" onClick={toggleFavorite}>
             <IconStar
               class={`${isFavorite() ? "fill-amber-300 " : ""}stroke-amber-300`}
             />
           </button>
           <CardTitle class="text-md leading-none">
-            <a class="flex gap-2" href={props.entry?.link}>
+            <a class="flex gap-2" href={props.entry?.link} target="_blank">
               {props.entry?.title}
               <IconExternalLink class="text-muted-foreground" />
             </a>
@@ -72,7 +74,7 @@ export default function FeedItem(props: { entry?: FeedEntryEnhanced }) {
         </Flex>
         <CardDescription>{props.entry?.source}</CardDescription>
       </CardHeader>
-      <Flex class="p-4 pt-0 gap-8">
+      <Flex class="p-4 pt-0 gap-8" alignItems="end">
         <CardContent class="p-0 text-xs">
           {props.entry?.description}
         </CardContent>

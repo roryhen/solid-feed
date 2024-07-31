@@ -15,11 +15,11 @@ export async function extractFeed(url: string) {
 
   try {
     result = await extract(normalizedURL, {
-      getExtraFeedFields: (feedData) => {
-        return {};
-      },
-      getExtraEntryFields: (entry) => {
-        return {};
+      getExtraFeedFields: (feedData: { image?: { url?: string } }) => {
+        console.log("feedData", JSON.stringify(feedData, null, 2));
+        return {
+          image: feedData?.image?.url,
+        };
       },
     });
 

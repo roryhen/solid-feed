@@ -9,8 +9,9 @@ import { slugify } from "~/lib/utils";
 
 export function TopBar(props: { name?: string }) {
   props = mergeProps({ name: "Feed" }, props);
+
   return (
-    <div class="flex items-center px-4 py-2">
+    <div class="flex gap-2 items-center px-4 py-2">
       <h1 class="text-xl font-bold">{props.name}</h1>
       <TabsList class="ml-auto">
         <TabsTrigger value="unread" class="text-zinc-600 dark:text-zinc-200">

@@ -22,7 +22,7 @@
     "tailwindcss-animate": "^1.0.7",
     "ufo": "^1.5.3",
     "unstorage": "1.10.2",
-    "vinxi": "^0.3.14"
+    "vinxi": "^0.4.1"
   },
   "engines": {
     "node": "22"

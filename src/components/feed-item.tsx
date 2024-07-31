@@ -24,7 +24,7 @@ export default function FeedItem(props: { entry?: FeedEntryEnhanced }) {
     setFeeds(
       { from: 0, to: feeds?.length - 1 || 0 },
       "entries",
-      (entry: FeedEntryEnhanced) => entry.id === props.entry?.id,
+      (entry) => entry.id === props.entry?.id,
       "tags",
       (tags) =>
         isFavorite()
@@ -37,7 +37,7 @@ export default function FeedItem(props: { entry?: FeedEntryEnhanced }) {
     setFeeds(
       { from: 0, to: feeds?.length - 1 || 0 },
       "entries",
-      (entry: FeedEntryEnhanced) => entry.id === props.entry?.id,
+      (entry) => entry.id === props.entry?.id,
       "unread",
       (unread) => !unread,
     );

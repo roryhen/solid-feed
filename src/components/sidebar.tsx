@@ -8,7 +8,7 @@ import { useFeedStore } from "./feed-provider";
 import { Separator } from "./ui/separator";
 
 export default function Sidebar(props: { isCollapsed: boolean }) {
-  let [feeds] = useFeedStore();
+  let [feeds, setFeeds] = useFeedStore();
 
   let links = createMemo(() => {
     return feeds.map((feed) => ({
@@ -19,6 +19,9 @@ export default function Sidebar(props: { isCollapsed: boolean }) {
       filter: {
         name: FEED,
         value: slugify(feed.title ?? ""),
+      },
+      delete: () => {
+        setFeeds((feeds) => feeds.filter((f) => f.link !== feed.link));
       },
     }));
   });

@@ -58,7 +58,7 @@ export default function App() {
                   "min-w-[56px] transition-all duration-300 ease-in-out",
               )}
               initialSize={sizes()[0]}
-              minSize={0.1}
+              minSize={0.12}
               maxSize={0.3}
               collapsible
               onCollapse={(e) => {

@@ -10,7 +10,7 @@ export type FeedEntryEnhanced = FeedEntry & {
 };
 
 export type FeedDataEnhanced = FeedData & {
-  fetchURL: string;
+  xml: string;
   entries: FeedEntryEnhanced[];
 };
 

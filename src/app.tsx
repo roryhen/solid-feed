@@ -1,10 +1,14 @@
 // @refresh reload
 import { cookieStorage, makePersisted } from "@solid-primitives/storage";
 import { Router } from "@solidjs/router";
+import { clientOnly } from "@solidjs/start";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense, createSignal, onCleanup, onMount } from "solid-js";
+import { Show, Suspense, createSignal } from "solid-js";
 import "./app.css";
+import AppFallback from "./components/app-fallback";
 import Sidebar from "./components/sidebar";
+import { Button } from "./components/ui/button";
+import { IconDots, IconX } from "./components/ui/icons";
 import {
   Resizable,
   ResizableHandle,
@@ -12,10 +16,6 @@ import {
 } from "./components/ui/resizable";
 import { Toaster } from "./components/ui/toast";
 import { cn } from "./lib/utils";
-import { clientOnly } from "@solidjs/start";
-import AppFallback from "./components/app-fallback";
-import { Button } from "./components/ui/button";
-import { IconDots, IconX } from "./components/ui/icons";
 
 const FeedProvider = clientOnly(() =>
   import("./components/feed-provider").then((m) => m),
@@ -84,7 +84,9 @@ export default function App() {
             size="icon"
             onClick={() => setIsMenuOpen((x) => !x)}
           >
-            {isMenuOpen() ? <IconX /> : <IconDots />}
+            <Show when={isMenuOpen()} fallback={<IconDots />}>
+              <IconX />
+            </Show>
           </Button>
           <Toaster />
         </FeedProvider>

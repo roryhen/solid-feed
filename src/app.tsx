@@ -50,7 +50,7 @@ export default function App() {
             />
             <ResizablePanel
               class={cn(
-                "max-sm:!basis-full max-sm:transition absolute inset-0 end-auto z-20 sm:relative max-sm:bg-[hsl(var(--background))]",
+                "max-sm:basis-full! max-sm:transition absolute inset-0 end-auto z-20 sm:relative max-sm:bg-[hsl(var(--background))]",
                 isMenuOpen()
                   ? "max-sm:translate-x-0"
                   : "max-sm:-translate-x-full",
@@ -72,7 +72,7 @@ export default function App() {
             </ResizablePanel>
             <ResizableHandle class="hidden sm:flex" withHandle />
             <ResizablePanel
-              class="max-sm:!basis-full"
+              class="max-sm:basis-full!"
               initialSize={sizes()[1]}
               minSize={0.3}
             >

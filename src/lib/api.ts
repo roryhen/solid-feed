@@ -1,6 +1,5 @@
-import { action, cache } from "@solidjs/router";
+import { action, query } from "@solidjs/router";
 import type { FeedData } from "@extractus/feed-extractor";
-import { extract } from "@extractus/feed-extractor";
 import { storage } from "./db";
 import { slugify } from "./utils";
 import { extractFeed } from "./feed";
@@ -16,19 +15,19 @@ type Unread = {
   published: Date;
 };
 
-export const getFeeds = cache(async () => {
+export const getFeeds = query(async () => {
   "use server";
-  return ((await storage.getItem("app:feeds")) as FeedSource[]) || [];
+  return (await storage.getItem<FeedSource[]>("app:feeds")) || [];
 }, "feeds");
 
-export const getFeed = cache(async (slug: string) => {
+export const getFeed = query(async (slug: string) => {
   "use server";
   return (await getFeeds()).find((feed) => feed.slug === slug);
 }, "feed");
 
-export const getUnread = cache(async () => {
+export const getUnread = query(async () => {
   "use server";
-  return ((await storage.getItem("app:unread")) as Unread[]) || [];
+  return (await storage.getItem<Unread[]>("app:unread")) || [];
 }, "unread");
 
 export const saveFeed = action(async (formData: FormData) => {

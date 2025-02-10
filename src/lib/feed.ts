@@ -1,11 +1,12 @@
 import { FeedData, extract } from "@extractus/feed-extractor";
-import { Params } from "@solidjs/router";
 import { withHttps } from "ufo";
 import type {
   FeedDataEnhanced,
   FeedEntryEnhanced,
 } from "~/components/feed-provider";
 import { slugify } from "./utils";
+
+export type SearchParams = Record<string, string | string[]>;
 
 export async function extractFeed(url: string) {
   "use server";
@@ -16,7 +17,6 @@ export async function extractFeed(url: string) {
   try {
     result = await extract(normalizedURL, {
       getExtraFeedFields: (feedData: { image?: { url?: string } }) => {
-        console.log("feedData", JSON.stringify(feedData, null, 2));
         return {
           image: feedData?.image?.url,
         };
@@ -59,20 +59,26 @@ export function hasExistingFeed(feedStore: FeedData[], feedData: FeedData) {
   return feedStore.some((feed) => feed.link === feedData.link);
 }
 
-export function filterFeeds(feed: FeedDataEnhanced, params: Partial<Params>) {
+export function filterFeeds(
+  feed: FeedDataEnhanced,
+  params: Partial<SearchParams>,
+) {
   return !params.feed || slugify(feed.title ?? "") === params.feed;
 }
 
 export function filterEntries(
   entry: FeedEntryEnhanced,
-  params: Partial<Params>,
+  params: Partial<SearchParams>,
 ) {
-  if (params.tag) {
+  if (params.tag && Array.isArray(params.tag)) {
+    return params.tag.some((tag: string) => entry.tags.includes(tag));
+  } else if (params.tag) {
     return entry.tags.includes(params.tag);
   }
 
-  if (params.q) {
-    let re = new RegExp(params.q, "i");
+  const query = typeof params.q === "string" ? params.q : params.q?.[0];
+  if (query) {
+    let re = new RegExp(query, "i");
     return re.test(entry.title ?? "") || re.test(entry.description ?? "");
   }
 
